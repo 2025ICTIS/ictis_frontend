@@ -7,6 +7,7 @@ import { HomeScreen } from "@/pages/home/HomeScreen.tsx";
 
 import {AppShell} from "@/components/AppShell.tsx";
 import {ConsumerTypeTest} from "@/consumer/ConsumerTypeTest.tsx";
+import {ExploreScreen} from "@/pages/explore/ExploreScreen.tsx";
 
 export default function App() {
     const screen = useAppStore((s) => s.currentScreen);
@@ -20,7 +21,7 @@ export default function App() {
             {screen === "login" && <LoginScreen />}
             {screen === "home" && <HomeScreen />}
             {screen === "test" && <ConsumerTypeTest />}
-
+            {screen === "explore" && <ExploreScreen />}
             {/* 필요 시 다른 화면도 추가: {screen === "home" && <HomeScreen />} 등 */}
             {!hideBottomNav && <BottomNavigation />}
         </AppShell>

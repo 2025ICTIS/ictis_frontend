@@ -13,7 +13,7 @@ export function AppShell({ children }: PropsWithChildren) {
         `}
             >
                 {/* 콘텐츠 영역: 스크롤 방지 위해 고정 높이 + 오버플로우 숨김 */}
-                <div className="relative flex h-full w-full flex-col">
+                <div className="relative flex h-full min-h-0 w-full flex-col">
                     {children}
                 </div>
             </div>

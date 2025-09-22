@@ -23,6 +23,7 @@ export const CONSUMER_TYPES = {
     CULTURE_SEEKER: "문화탐방가",
 } as const;
 
+// ... existing code ...
 export const DISTRICTS = {
     CHEONAN_DONGNAM: "천안시 동남구",
     CHEONAN_SEOBUK: "천안시 서북구",
@@ -66,3 +67,82 @@ export const RANKING_TYPES = {
     DISCOVERER: "discoverer",
     REVIEWER: "reviewer",
 } as const;
+
+// ---------------- 추가: 소비자 테스트 공통 상수/타입 ----------------
+export type QuestionKind = "gender" | "age" | "district" | "score";
+
+export type Option = { id: string; text: string };
+
+export type Question = {
+    id: string;
+    kind: QuestionKind;
+    title: string;
+    options: Option[];
+};
+
+// 충남 시·군·구 리스트(테스트용 선택지에 사용)
+export const CHUNGNAM_DISTRICTS: string[] = [
+    DISTRICTS.CHEONAN_DONGNAM,
+    DISTRICTS.CHEONAN_SEOBUK,
+    DISTRICTS.GONGJU,
+    DISTRICTS.BORYEONG,
+    DISTRICTS.ASAN,
+    DISTRICTS.SEOSAN,
+    DISTRICTS.NONSAN,
+    DISTRICTS.GYERYONG,
+    DISTRICTS.DANGJIN,
+    DISTRICTS.GEUMSAN_GUN,
+    DISTRICTS.BUYEO_GUN,
+    DISTRICTS.SEOCHON_GUN,
+    DISTRICTS.CHEONGYANG_GUN,
+    DISTRICTS.HONGSEONG_GUN,
+    DISTRICTS.YESAN_GUN,
+    DISTRICTS.TAEAN_GUN,
+];
+
+// 선택지 id → API payload 한글 라벨 매핑
+export const GENDER_MAP: Record<string, string> = {
+    male: "남자",
+    female: "여자",
+    other: "기타",
+};
+
+export const AGE_MAP: Record<string, string> = {
+    "10s": "10대",
+    "20s": "20대",
+    "30s": "30대",
+    "40s": "40대",
+    "50p": "50대 이상",
+};
+
+// 테스트 질문(앞 3개는 인구통계)
+export const TEST_QUESTIONS: Question[] = [
+    {
+        id: "gender",
+        kind: "gender",
+        title: "성별을 선택해 주세요",
+        options: [
+            { id: "male", text: "남성" },
+            { id: "female", text: "여성" },
+            { id: "other", text: "기타" },
+        ],
+    },
+    {
+        id: "age",
+        kind: "age",
+        title: "연령대를 선택해 주세요",
+        options: [
+            { id: "10s", text: "10대" },
+            { id: "20s", text: "20대" },
+            { id: "30s", text: "30대" },
+            { id: "40s", text: "40대" },
+            { id: "50p", text: "50대 이상" },
+        ],
+    },
+    {
+        id: "district",
+        kind: "district",
+        title: "충청남도 시·군·구를 선택해 주세요",
+        options: CHUNGNAM_DISTRICTS.map((d) => ({ id: d, text: d })),
+    },
+];

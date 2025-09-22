@@ -4,7 +4,6 @@ export interface User {
     name: string;
     nickname: string;
     password: string;
-    consumerType?: string;
     stamps: number;
     reviews: number;
     hasCompletedTest?: boolean;
@@ -12,6 +11,7 @@ export interface User {
     ageRange?: string;
     district?: string;
 }
+
 
 export interface Review {
     id: number;
