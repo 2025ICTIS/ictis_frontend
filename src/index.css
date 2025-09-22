@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* 모바일 웹앱 전역 리셋(권장) */
+html, body, #root { height: 100%; margin: 0; }
+#root {
+    min-height: 100svh; /* 최신 안전 단위 */
+    min-height: 100dvh; /* 동적 단위 */
+    min-height: 100vh;  /* 폴백 */
+}
+html { -webkit-text-size-adjust: 100%; }
+body { overscroll-behavior: none; background: #f8fafc; }
