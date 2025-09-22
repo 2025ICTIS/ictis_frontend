@@ -44,6 +44,24 @@ async function request<T = unknown>(path: string, options: RequestOptions = {}):
     return (isJson ? res.json() : (res.text() as any)) as T;
 }
 
+// 원본 Response가 필요할 때(status 코드 확인 등)
+async function requestRaw(path: string, options: RequestOptions = {}): Promise<Response> {
+    if (!baseURL) throw new Error("API baseURL이 설정되지 않았습니다.");
+    const url = `${baseURL}${path}`;
+
+    const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+        ...(options.headers || {}),
+    };
+
+    return fetch(url, {
+        method: options.method ?? "GET",
+        headers,
+        body: options.body ? JSON.stringify(options.body) : undefined,
+        signal: options.signal,
+    });
+}
+
 export const apiClient = {
     get: <T = unknown>(path: string, options?: Omit<RequestOptions, "method" | "body">) =>
         request<T>(path, { ...options, method: "GET" }),
@@ -55,4 +73,7 @@ export const apiClient = {
         request<T>(path, { ...options, method: "PATCH", body }),
     delete: <T = unknown>(path: string, options?: Omit<RequestOptions, "method" | "body">) =>
         request<T>(path, { ...options, method: "DELETE" }),
+    // 상태 코드 확인용 RAW 메서드
+    postRaw: (path: string, body?: any, options?: Omit<RequestOptions, "method">) =>
+        requestRaw(path, { ...options, method: "POST", body }),
 };

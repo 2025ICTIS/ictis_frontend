@@ -31,8 +31,11 @@ export const SignupScreen = () => {
         }
 
         try {
-            // 중앙 API 모듈 사용
-            await signup({ username, nickname, password });
+            // 중앙 API 모듈 사용 (status 확인)
+            const result = await signup({ username, nickname, password });
+            if (result.status !== 201) {
+                throw new Error(`회원가입 실패 (status: ${result.status})`);
+            }
 
             // 필요 시 응답 데이터 기반으로 상태 업데이트
             setUser({ name: username, nickname, password, stamps: 0, reviews: 0, hasCompletedTest: false });
@@ -50,7 +53,6 @@ export const SignupScreen = () => {
             setIsLoading(false);
         }
     };
-
 
     return (
         <div className="w-full h-full">
@@ -137,6 +139,17 @@ export const SignupScreen = () => {
                     <div className="mt-6 text-center text-sm text-white/85">
                         가입하시면 충청도의 숨은 맛집과 상권을 발견할 수 있습니다
                     </div>
+
+                    {/* 이미 계정이 있는 경우 로그인 이동 */}
+                    <div className="mt-3 text-center">
+                        <button
+                            type="button"
+                            className="text-sm font-medium text-white underline underline-offset-4 hover:text-white/90 cursor-pointer"
+                            onClick={() => setCurrentScreen("login")}
+                        >
+                            이미 계정이 있으신가요? 로그인
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -156,5 +169,4 @@ export const SignupScreen = () => {
             )}
         </div>
     );
-
 };
