@@ -1,19 +1,13 @@
-import { useAppStore } from "@/store/useAppStore.ts";
+import { useAppStore } from "@/store/useAppStore";
 import { HomeScreenNoTest } from "@/pages/home/HomeScreenNoTest";
-import {useEffect} from "react";
+import { HomeScreenWithTest } from "@/pages/home/HomeScreenWithTest";
 
 export const HomeScreen = () => {
-    const { user, setCurrentScreen } = useAppStore();
+  const { user } = useAppStore();
+  // 테스트 완료 + 소비타입 산출까지 된 경우에만 완료로 간주
+  const hasCompletedTest = Boolean(
+    user?.hasCompletedTest && user?.consumerType
+  );
 
-    const hasCompletedTest = !!user?.hasCompletedTest;
-
-    useEffect(() => {
-        if (hasCompletedTest) {
-            // 테스트 완료 시 홈 대신 탐색 탭으로 전환
-            setCurrentScreen("explore");
-        }
-    }, [hasCompletedTest, setCurrentScreen]);
-
-    // 테스트 완료 전에는 기존 노테스트 홈 표시
-    return <HomeScreenNoTest />;
+  return hasCompletedTest ? <HomeScreenWithTest /> : <HomeScreenNoTest />;
 };
