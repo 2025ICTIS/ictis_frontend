@@ -6,20 +6,20 @@ import { getRecommendations } from "@/features/recommend/api.ts";
 
 /* API → 전역 store 형태로 변환 (Store 인터페이스에 맞춤) */
 const toStoreItems = (items: any[]) =>
-    items.map((it: any, idx: number) => ({
-        id: 10000 + idx,
-        name: it.name,
-        category: "추천",
-        district: it.address?.split(/\s+/).slice(0, 2).join(" ") || "지역미상",
-        address: it.address,
-        hours: it.hours ?? "정보없음",
-        image: undefined,
-        reviews: [],
-        visitCount: 0,
-        // 좌표 매핑: latitude / longtitude(경도 오탈자) → Store.latitude/longitude
-        latitude: typeof it.latitude === "number" ? it.latitude : undefined,
-        longitude: typeof it.longtitude === "number" ? it.longtitude : undefined,
-    }));
+  items.map((it: any, idx: number) => ({
+    id: 10000 + idx,
+    name: it.name,
+    category: "추천",
+    district: it.address?.split(/\s+/).slice(0, 2).join(" ") || "지역미상",
+    address: it.address,
+    hours: it.hours ?? "정보없음",
+    image: undefined,
+    reviews: [],
+    visitCount: 0,
+    // 좌표 매핑: latitude / longtitude(경도 오탈자) → Store.latitude/longitude
+    latitude: typeof it.latitude === "number" ? it.latitude : undefined,
+    longitude: typeof it.longtitude === "number" ? it.longtitude : undefined,
+  }));
 
 export const ConsumerTypeTest: React.FC = () => {
   const {
@@ -119,14 +119,6 @@ export const ConsumerTypeTest: React.FC = () => {
   if (showResult) {
     return (
       <div className="w-full h-full flex flex-col bg-gradient-to-br from-pink-50 to-white overflow-hidden">
-        <header className="px-4 py-4 bg-transparent">
-          <button
-            onClick={goBack}
-            className="p-2 rounded-lg hover:bg-white/50 transition-colors"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-600" />
-          </button>
-        </header>
         <div className="grid flex-1 min-h-0 p-4 overflow-hidden place-items-center">
           <div className="w-full max-w-md p-8">
             <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-pink-100 rounded-full">
