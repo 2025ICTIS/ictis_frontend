@@ -104,7 +104,6 @@ export const CHUNGNAM_DISTRICTS: string[] = [
 export const GENDER_MAP: Record<string, string> = {
     male: "남자",
     female: "여자",
-    other: "기타",
 };
 
 export const AGE_MAP: Record<string, string> = {
@@ -124,7 +123,6 @@ export const TEST_QUESTIONS: Question[] = [
         options: [
             { id: "male", text: "남성" },
             { id: "female", text: "여성" },
-            { id: "other", text: "기타" },
         ],
     },
     {

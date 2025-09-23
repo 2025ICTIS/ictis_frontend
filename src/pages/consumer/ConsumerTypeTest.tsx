@@ -1,22 +1,25 @@
 import { useState } from "react";
 import { ChevronLeft, Award } from "lucide-react";
-import { useAppStore } from "@/store/useAppStore";
+import { useAppStore } from "@/store/useAppStore.ts";
 import { AGE_MAP, GENDER_MAP, TEST_QUESTIONS } from "@/constants";
-import { getRecommendations } from "@/features/recommend/api";
+import { getRecommendations } from "@/features/recommend/api.ts";
 
 /* API → 전역 store 형태로 변환 (Store 인터페이스에 맞춤) */
 const toStoreItems = (items: any[]) =>
-  items.map((it: any, idx: number) => ({
-    id: 10000 + idx,
-    name: it.name,
-    category: "추천",
-    district: it.address?.split(/\s+/).slice(0, 2).join(" ") || "지역미상",
-    address: it.address,
-    hours: it.hours ?? "정보없음",
-    image: undefined,
-    reviews: [],
-    visitCount: 0,
-  }));
+    items.map((it: any, idx: number) => ({
+        id: 10000 + idx,
+        name: it.name,
+        category: "추천",
+        district: it.address?.split(/\s+/).slice(0, 2).join(" ") || "지역미상",
+        address: it.address,
+        hours: it.hours ?? "정보없음",
+        image: undefined,
+        reviews: [],
+        visitCount: 0,
+        // 좌표 매핑: latitude / longtitude(경도 오탈자) → Store.latitude/longitude
+        latitude: typeof it.latitude === "number" ? it.latitude : undefined,
+        longitude: typeof it.longtitude === "number" ? it.longtitude : undefined,
+    }));
 
 export const ConsumerTypeTest: React.FC = () => {
   const {
@@ -125,7 +128,7 @@ export const ConsumerTypeTest: React.FC = () => {
           </button>
         </header>
         <div className="grid flex-1 min-h-0 p-4 overflow-hidden place-items-center">
-          <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-3xl">
+          <div className="w-full max-w-md p-8">
             <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-pink-100 rounded-full">
               <Award className="w-12 h-12 text-pink-500" />
             </div>

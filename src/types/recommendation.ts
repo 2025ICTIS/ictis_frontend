@@ -11,6 +11,5 @@ export type RecommendItem = {
   hours?: string;
   description?: string;
   latitude?: number;
-  longitude?: number;
-  longtitude?: number; // ← 철자 이슈 대비
+  longtitude?: number;
 };

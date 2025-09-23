@@ -37,8 +37,8 @@ export interface Store {
   visitCount: number;
 
   /** 지도용 좌표 (선택) */
-  lat?: number;
-  lng?: number;
+  latitude?: number;
+  longitude?: number;
 }
 
 type ScreenType =
@@ -188,53 +188,53 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   /** 데모 매장 + 대략 좌표 포함 */
   seedStores: () => {
-    const { stores } = get();
-    if (stores.length > 0) return;
-    const demo: Store[] = [
-      {
-        id: 201,
-        name: "천안 두정동 카페 로스터리",
-        category: "카페",
-        district: "천안시 서북구 두정동",
-        address: "충남 천안시 서북구 두정중10길 12",
-        hours: "매일 10:00 ~ 21:00 (월요일 휴무)",
-        image: "/images/sample/cafe.jpg",
-        reviews: [],
-        visitCount: 0,
-        lat: 36.833,
-        lng: 127.148,
-      },
-      {
-        id: 202,
-        name: "아산 곡교천 피자",
-        category: "피자",
-        district: "아산시 배방읍",
-        address: "충남 아산시 배방읍 어의달길 23",
-        hours: "매일 11:00 ~ 22:00 (브레이크 15:00 ~ 17:00)",
-        image: "/images/sample/pizza.jpg",
-        reviews: [],
-        visitCount: 0,
-        lat: 36.784,
-        lng: 127.104,
-      },
-      {
-        id: 203,
-        name: "공주 성당골 베이커리",
-        category: "베이커리",
-        district: "공주시 웅진동",
-        address: "충남 공주시 웅진로 78",
-        hours: "평일 09:00 ~ 20:00, 주말 10:00 ~ 19:00",
-        image: "/images/sample/bread.jpg",
-        reviews: [],
-        visitCount: 0,
-        lat: 36.455,
-        lng: 127.128,
-      },
-    ];
-    set({ stores: demo });
+      const { stores } = get();
+      if (stores.length > 0) return;
+      const demo: Store[] = [
+          {
+              id: 201,
+              name: "천안 두정동 카페 로스터리",
+              category: "카페",
+              district: "천안시 서북구 두정동",
+              address: "충남 천안시 서북구 두정중10길 12",
+              hours: "매일 10:00 ~ 21:00 (월요일 휴무)",
+              image: "/images/sample/cafe.jpg",
+              reviews: [],
+              visitCount: 0,
+              latitude: 36.833,
+              longitude: 127.148,
+          },
+          {
+              id: 202,
+              name: "아산 곡교천 피자",
+              category: "피자",
+              district: "아산시 배방읍",
+              address: "충남 아산시 배방읍 어의달길 23",
+              hours: "매일 11:00 ~ 22:00 (브레이크 15:00 ~ 17:00)",
+              image: "/images/sample/pizza.jpg",
+              reviews: [],
+              visitCount: 0,
+              latitude: 36.784,
+              longitude: 127.104,
+          },
+          {
+              id: 203,
+              name: "공주 성당골 베이커리",
+              category: "베이커리",
+              district: "공주시 웅진동",
+              address: "충남 공주시 웅진로 78",
+              hours: "평일 09:00 ~ 20:00, 주말 10:00 ~ 19:00",
+              image: "/images/sample/bread.jpg",
+              reviews: [],
+              visitCount: 0,
+              latitude: 36.455,
+              longitude: 127.128,
+          },
+      ];
+      set({ stores: demo });
   },
 
-  getStoreById: (id) => get().stores.find((s) => s.id === id),
+    getStoreById: (id) => get().stores.find((s) => s.id === id),
 
   setUserDemographics: ({ gender, ageRange, district }) =>
     set((s) => ({

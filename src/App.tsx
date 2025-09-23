@@ -6,7 +6,7 @@ import { LoginScreen } from "@/pages/auth/LoginScreen.tsx";
 import { HomeScreen } from "@/pages/home/HomeScreen.tsx";
 
 import { AppShell } from "@/components/AppShell.tsx";
-import { ConsumerTypeTest } from "@/consumer/ConsumerTypeTest.tsx";
+import { ConsumerTypeTest } from "@/pages/consumer/ConsumerTypeTest.tsx";
 import { ExploreMapScreen } from "@/pages/explore/ExploreMapScreen";
 
 export default function App() {

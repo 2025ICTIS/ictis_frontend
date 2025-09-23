@@ -35,13 +35,13 @@ export const HomeScreenNoTest = () => {
             {/* 예시 입력 칩 */}
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur">
-                gender: 남자
+                성별: 남자
               </span>
               <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur">
-                age: 20대
+                연령대: 20대
               </span>
               <span className="rounded-full bg-white/20 px-2 py-1 text-xs font-medium text-white backdrop-blur">
-                address: 대전광역시 중구
+                사는곳: 대전광역시 중구
               </span>
             </div>
 
