@@ -3,94 +3,80 @@ import { useAppStore } from "@/store/useAppStore";
 import type { ComponentType } from "react";
 
 type ScreenType =
-  | "loading"
-  | "signup"
-  | "login"
-  | "home"
-  | "test"
-  | "explore"
-  | "ranking"
-  | "mypage";
+    | "loading"
+    | "signup"
+    | "login"
+    | "home"
+    | "test"
+    | "explore"
+    | "ranking"
+    | "mypage";
 
 interface NavItem {
-  id: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  screen: ScreenType;
+    id: string;
+    label: string;
+    icon: ComponentType<{ className?: string }>;
+    screen: ScreenType;
 }
 
 export const BottomNavigation = () => {
-  const { user, currentScreen, setCurrentScreen } = useAppStore();
-  const hasCompletedTest = Boolean(
-    user?.hasCompletedTest && user?.consumerType
-  );
+    const { currentScreen, setCurrentScreen } = useAppStore();
 
-  const navItems: NavItem[] = [
-    { id: "home", label: "홈", icon: Home, screen: "home" },
-    { id: "explore", label: "탐색", icon: Search, screen: "explore" },
-    { id: "ranking", label: "랭킹", icon: Trophy, screen: "ranking" },
-    { id: "mypage", label: "마이", icon: User, screen: "mypage" },
-  ];
+    const navItems: NavItem[] = [
+        { id: "home", label: "홈", icon: Home, screen: "home" },
+        { id: "explore", label: "탐색", icon: Search, screen: "explore" },
+        { id: "ranking", label: "랭킹", icon: Trophy, screen: "ranking" },
+        { id: "mypage", label: "마이페이지", icon: User, screen: "mypage" },
+    ];
 
-  // 네비게이션이 표시되지 않아야 하는 화면들
-  const hiddenScreens: ScreenType[] = ["loading", "signup", "login", "test"];
-  if (hiddenScreens.includes(currentScreen)) return null;
+    // 네비게이션이 표시되지 않아야 하는 화면들
+    const hiddenScreens: ScreenType[] = ["loading", "signup", "login", "test"];
+    if (hiddenScreens.includes(currentScreen)) return null;
 
-  const handleNav = (target: ScreenType) => {
-    const tryingExplore = target === "explore";
-    if (tryingExplore && !hasCompletedTest) {
-      // 가드: 테스트 미완료면 탐색 접근 막기
-      // toast 사용 중이면 아래 alert 대신 toast로 대체하세요.
-      alert("탐색은 테스트 완료 후 이용할 수 있어요.");
-      // 필요 시 테스트 화면으로 유도하려면 다음 주석 해제:
-      // setCurrentScreen("test");
-      return;
-    }
-    if (currentScreen !== target) setCurrentScreen(target);
-  };
+    const handleNav = (target: ScreenType) => {
+        if (currentScreen !== target) setCurrentScreen(target);
+    };
 
-  return (
-    <div className="absolute bottom-0 left-0 right-0 z-40 w-full bg-white border-t border-gray-200">
-      <div className="flex items-center justify-around h-16 px-2">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentScreen === item.screen;
-          const blocked = item.screen === "explore" && !hasCompletedTest;
+    return (
+        <div className="absolute bottom-0 left-0 right-0 z-40 w-full bg-white border-t border-gray-200">
+            <div className="flex items-center justify-around h-16 px-2">
+                {navItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentScreen === item.screen;
+                    // const blocked = item.screen === "explore" && !hasCompletedTest;
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => handleNav(item.screen)}
-              aria-current={isActive ? "page" : undefined}
-              aria-disabled={blocked ? true : undefined}
-              title={blocked ? "테스트 완료 후 이용 가능" : undefined}
-              className={[
-                "cursor-pointer flex flex-col items-center justify-center py-2 px-2 min-w-0 flex-1 transition-all duration-200 rounded-lg active:scale-95",
-                isActive ? "transform scale-105" : "",
-                blocked ? "opacity-50 cursor-not-allowed" : "",
-              ].join(" ")}
-              style={{ minHeight: "60px" }}
-            >
-              <div className="p-1.5 rounded-lg transition-colors">
-                <Icon
-                  className={[
-                    "w-6 h-6 transition-colors",
-                    isActive ? "text-blue-500" : "text-gray-400",
-                  ].join(" ")}
-                />
-              </div>
-              <span
-                className={[
-                  "text-xs font-medium mt-1 transition-colors",
-                  isActive ? "text-blue-500" : "text-gray-400",
-                ].join(" ")}
-              >
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => handleNav(item.screen)}
+                            aria-current={isActive ? "page" : undefined}
+                            className={[
+                                "cursor-pointer flex flex-col items-center justify-center py-2 px-2 min-w-0 flex-1 transition-all duration-200 rounded-lg active:scale-95",
+                                isActive ? "transform scale-105" : "",
+                                // blocked ? "opacity-50 cursor-not-allowed" : "",
+                            ].join(" ")}
+                            style={{ minHeight: "60px" }}
+                        >
+                            <div className="p-1.5 rounded-lg transition-colors">
+                                <Icon
+                                    className={[
+                                        "w-6 h-6 transition-colors",
+                                        isActive ? "text-blue-500" : "text-gray-400",
+                                    ].join(" ")}
+                                />
+                            </div>
+                            <span
+                                className={[
+                                    "text-xs font-medium mt-1 transition-colors",
+                                    isActive ? "text-blue-500" : "text-gray-400",
+                                ].join(" ")}
+                            >
                 {item.label}
               </span>
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
+                        </button>
+                    );
+                })}
+            </div>
+        </div>
+    );
 };
