@@ -14,6 +14,7 @@ import {AppShell} from "@/components/AppShell.tsx";
 import LoginInfoScreen from "@/pages/mypage/LoginInfoScreen.tsx";
 import MyReviewsScreen from "@/pages/mypage/MyReviewsScreen.tsx";
 import ReviewWritePage from "@/pages/explore/ReviewWriteScreen.tsx";
+import SearchStoreScreen from "@/pages/explore/SearchStoreScreen.tsx";
 
 // screen <-> path 매핑
 const screenToPath = {
@@ -88,6 +89,7 @@ export default function App() {
                 <Route path="/login" element={<LoginScreen/>}/>
                 <Route path="/test" element={<ConsumerTypeTest/>}/>
                 <Route path="/explore" element={<ExploreMapScreen/>}/>
+                <Route path="/explore/search" element={<SearchStoreScreen/>}/>
                 <Route path="/ranking" element={<RankingScreen/>}/>
                 <Route path="/mypage" element={<MyPageScreen/>}/>
                 <Route path="/mypage/login" element={<LoginInfoScreen/>}/>

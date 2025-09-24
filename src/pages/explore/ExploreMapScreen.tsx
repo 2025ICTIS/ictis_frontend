@@ -1,7 +1,7 @@
 import {useEffect, useMemo, useRef, useState} from "react";
 import {useAppStore} from "@/store/useAppStore";
 import {CheckCircle2, ChevronDown, MapPin, Search} from "lucide-react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {loadNaverMapsV3} from "@/lib/naverMapLoader";
 import {StoreDetail} from "@/pages/explore/StoreDetail";
 
@@ -11,8 +11,12 @@ function getNaver() {
     return n && n.maps ? n : null;
 }
 
+// 검색 결과 타입(간단 포맷): SearchStoreScreen에서 전달
+type SearchPoint = { id: number; name: string; address: string; hours?: string; lat?: number; lng?: number };
+
 export const ExploreMapScreen = () => {
     const navigate = useNavigate();
+    const location = useLocation();
 
     const stores = useAppStore((s) => s.stores);
     const user = useAppStore((s) => s.user);
@@ -27,28 +31,22 @@ export const ExploreMapScreen = () => {
 
     const missionGoal = 10;
     const completedCount = visitedStoreIds.length;
-    const progress = Math.min(
-        100,
-        Math.round((completedCount / missionGoal) * 100)
-    );
+    const progress = Math.min(100, Math.round((completedCount / missionGoal) * 100));
     const currentMonth = new Date().getMonth() + 1;
 
-    const activeStore = useMemo(
-        () => stores.find((s) => s.id === activeStoreId) || null,
-        [stores, activeStoreId]
-    );
+    const activeStore = useMemo(() => stores.find((s) => s.id === activeStoreId) || null, [stores, activeStoreId]);
 
     /* map refs/state */
     const mapEl = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any>(null);
     const markerIndexRef = useRef<Map<number, any>>(new Map());
-    const geocodeCacheRef = useRef<Map<number, { lat: number; lng: number }>>(
-        new Map()
-    );
+    const geocodeCacheRef = useRef<Map<number, { lat: number; lng: number }>>(new Map());
 
-    const [sdkStatus, setSdkStatus] = useState<
-        "idle" | "loading" | "ready" | "failed"
-    >("idle");
+    // 검색 마커 별도 관리(추천/전역 stores와 분리)
+    const searchMarkerIndexRef = useRef<Map<number, any>>(new Map());
+    const [searchResults, setSearchResults] = useState<SearchPoint[] | null>(null);
+
+    const [sdkStatus, setSdkStatus] = useState<"idle" | "loading" | "ready" | "failed">("idle");
     const [, setSdkError] = useState<string | null>(null); // suppress unused var
 
     /* 테스트 미완료인 경우: 화면 전체를 가드로 대체 */
@@ -56,9 +54,7 @@ export const ExploreMapScreen = () => {
         return (
             <div className="w-full h-full flex flex-col overflow-hidden bg-white">
                 <header className="px-5 py-4 shadow-sm bg-white">
-                    <h1 className="text-xl font-extrabold tracking-tight text-gray-900">
-                        탐색
-                    </h1>
+                    <h1 className="text-xl font-extrabold tracking-tight text-gray-900">탐색</h1>
                 </header>
                 <main
                     className="flex-1 min-h-0 px-5 py-6 overflow-y-auto grid place-items-center"
@@ -71,9 +67,7 @@ export const ExploreMapScreen = () => {
                         <div className="mx-auto mb-5 h-20 w-20 rounded-full bg-indigo-50 grid place-items-center">
                             <Search className="h-10 w-10 text-indigo-500"/>
                         </div>
-                        <h2 className="text-lg font-bold text-gray-900">
-                            탐색은 테스트 완료 후 이용할 수 있어요
-                        </h2>
+                        <h2 className="text-lg font-bold text-gray-900">탐색은 테스트 완료 후 이용할 수 있어요</h2>
                         <p className="mt-2 text-sm text-gray-600">
                             간단한 테스트로 취향을 파악하고
                             <br/>
@@ -139,9 +133,7 @@ export const ExploreMapScreen = () => {
                     return;
                 }
                 setSdkStatus("ready");
-                requestAnimationFrame(() =>
-                    n.maps.Event.trigger(mapRef.current, "resize")
-                );
+                requestAnimationFrame(() => n.maps.Event.trigger(mapRef.current, "resize"));
                 setTimeout(() => n.maps.Event.trigger(mapRef.current!, "resize"), 60);
                 onResize = () => n.maps.Event.trigger(mapRef.current!, "resize");
                 window.addEventListener("resize", onResize);
@@ -179,15 +171,21 @@ export const ExploreMapScreen = () => {
                 zoom: 12,
                 zoomControl: false,
             });
-            requestAnimationFrame(() =>
-                n.maps.Event.trigger(mapRef.current, "resize")
-            );
+            requestAnimationFrame(() => n.maps.Event.trigger(mapRef.current, "resize"));
             setTimeout(() => n.maps.Event.trigger(mapRef.current!, "resize"), 60);
             renderMarkers(stores);
         } catch (e) {
             console.error("map re-init error:", e);
         }
     }, [sdkStatus, stores]);
+
+    // 라우트 state로 전달된 검색 결과 반영
+    useEffect(() => {
+        const state = location.state as any;
+        if (state && Array.isArray(state.searchResults)) {
+            setSearchResults(state.searchResults as SearchPoint[]);
+        }
+    }, [location.state]);
 
     /* rerender markers on stores change */
     useEffect(() => {
@@ -220,6 +218,66 @@ export const ExploreMapScreen = () => {
             }
         });
     }, [plannedVisitIds, visitedStoreIds]);
+
+    // 검색 결과 마커 렌더링/갱신(보라색)
+    useEffect(() => {
+        const n = getNaver();
+        if (!n || !mapRef.current) return;
+        // 기존 검색 마커 제거
+        searchMarkerIndexRef.current.forEach((m) => m.setMap(null));
+        searchMarkerIndexRef.current.clear();
+        if (!searchResults || searchResults.length === 0) return;
+
+        const bounds = new n.maps.LatLngBounds();
+        let firstPos: any = null;
+
+        const icon = {
+            content: `
+              <div style="
+                display:inline-flex;align-items:center;justify-content:center;
+                width:14px;height:14px;border-radius:50%;
+                background:#7c3aed;border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.1);
+              "></div>
+            `,
+            size: new n.maps.Size(14, 14),
+            anchor: new n.maps.Point(7, 7),
+        };
+
+        const ensure = (id: number, pos: any) => {
+            const marker = new n.maps.Marker({position: pos, map: mapRef.current, icon});
+            searchMarkerIndexRef.current.set(id, marker);
+            if (!firstPos) firstPos = pos;
+            bounds.extend(pos);
+        };
+
+        searchResults.forEach((s) => {
+            const lat = s.lat;
+            const lng = s.lng;
+            if (lat != null && lng != null) {
+                ensure(s.id, new n.maps.LatLng(lat, lng));
+            }
+            // 좌표가 없으면 지도에 표시하지 않음(필요 시 주소 지오코딩 추가 가능)
+        });
+
+        // 검색 결과 뷰로 맞춤(추천 마커와 별도)
+        if (searchMarkerIndexRef.current.size > 0) {
+            try {
+                (mapRef.current as any).fitBounds(bounds, {top: 24, right: 24, bottom: 24, left: 24});
+            } catch {
+                mapRef.current.fitBounds(bounds);
+            }
+            requestAnimationFrame(() => n.maps.Event.trigger(mapRef.current!, "resize"));
+        }
+        // cleanup은 다음 호출/언마운트에서 수행
+    }, [searchResults]);
+
+    // 언마운트 시 검색 마커 정리
+    useEffect(() => {
+        return () => {
+            searchMarkerIndexRef.current.forEach((m) => m.setMap(null));
+            searchMarkerIndexRef.current.clear();
+        };
+    }, []);
 
     /* markers */
     const renderMarkers = (list: typeof stores) => {
@@ -267,9 +325,7 @@ export const ExploreMapScreen = () => {
                     mapRef.current.fitBounds(bounds);
                 }
             }
-            requestAnimationFrame(() =>
-                n.maps.Event.trigger(mapRef.current!, "resize")
-            );
+            requestAnimationFrame(() => n.maps.Event.trigger(mapRef.current!, "resize"));
         };
 
         list.forEach((s) => {
@@ -375,13 +431,11 @@ export const ExploreMapScreen = () => {
             {/* 헤더 */}
             <header className="sticky top-0 z-10 px-4 pt-4 pb-3 bg-white">
                 <div className="flex items-center justify-between">
-                    <button className="cursor-pointer flex items-center gap-1 text-sm text-gray-700">
+                    <button className="cursor-pointer flex items-center gap-1 tex-sm text-gray-700"
+                            onClick={() => navigate("/explore/search")}>
                         <MapPin className="w-4 h-4"/>
                         <span>{user?.district ?? "지역 선택"}</span>
                         <ChevronDown className="w-4 h-4"/>
-                    </button>
-                    <button className="cursor-pointer p-2 rounded-full hover:bg-gray-100">
-                        <Search className="w-5 h-5 text-gray-700"/>
                     </button>
                 </div>
             </header>
@@ -400,16 +454,11 @@ export const ExploreMapScreen = () => {
                         <h3 className="text-lg font-semibold text-gray-900">
                             {user?.nickname ?? "회원"}님의 {currentMonth}월 방문 일정
                         </h3>
-                        <p className="text-sm text-gray-500">
-                            미션(방문 목표)과 예정 일정을 통합해서 보여드려요.
-                        </p>
+                        <p className="text-sm text-gray-500">미션(방문 목표)과 예정 일정을 통합해서 보여드려요.</p>
                         {/* 진행도 */}
                         <div>
                             <div className="w-full h-2 bg-gray-200 rounded-full">
-                                <div
-                                    className="h-2 bg-pink-500 rounded-full"
-                                    style={{width: `${progress}%`}}
-                                />
+                                <div className="h-2 bg-pink-500 rounded-full" style={{width: `${progress}%`}}/>
                             </div>
                             <div className="mt-1 text-xs text-right text-gray-500">
                                 완료 {completedCount} / 목표 {missionGoal}
@@ -419,12 +468,8 @@ export const ExploreMapScreen = () => {
                     {/* 일정 리스트 */}
                     {scheduleCards.length === 0 ? (
                         <div className="p-6 text-center border border-gray-300 border-dashed rounded-2xl">
-                            <p className="text-sm text-gray-600">
-                                아직 등록한 방문 일정이 없어요.
-                            </p>
-                            <p className="mt-1 text-sm text-gray-500">
-                                지도에서 마커를 눌러 일정을 추가해보세요!
-                            </p>
+                            <p className="text-sm text-gray-600">아직 등록한 방문 일정이 없어요.</p>
+                            <p className="mt-1 text-sm text-gray-500">지도에서 마커를 눌러 일정을 추가해보세요!</p>
                         </div>
                     ) : (
                         <div className="mt-3 flex-1 min-h-0 space-y-3 overflow-y-auto p-1"
@@ -451,12 +496,9 @@ export const ExploreMapScreen = () => {
                                             <p className="text-xs text-gray-500 truncate">
                                                 {s.district} · {s.category}
                                             </p>
-                                            <p className="truncate text-[15px] font-semibold text-gray-900">
-                                                {s.name}
-                                            </p>
-                                            <p className="mt-1 text-xs text-gray-500">
-                                                운영시간 | {s.hours?.split("(")[0] ?? "정보없음"}
-                                            </p>
+                                            <p className="truncate text-[15px] font-semibold text-gray-900">{s.name}</p>
+                                            <p className="mt-1 text-xs text-gray-500">운영시간
+                                                | {s.hours?.split("(")[0] ?? "정보없음"}</p>
                                         </div>
                                         {done ? (
                                             <div className="flex items-center gap-1 text-xs font-medium text-green-600">
@@ -464,19 +506,16 @@ export const ExploreMapScreen = () => {
                                                 완료
                                             </div>
                                         ) : (
-                                            <span className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full">
-                          예정
-                        </span>
+                                            <span
+                                                className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full">예정</span>
                                         )}
                                     </div>
                                 );
                             })}
                         </div>
                     )}
-
                 </section>
             </main>
-
 
             {/* 상세 오버레이: 여기 하단에 “방문 일정에 추가하기” 버튼이 있습니다 */}
             {activeStore && (
