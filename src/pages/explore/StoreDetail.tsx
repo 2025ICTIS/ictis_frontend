@@ -173,7 +173,7 @@ export function StoreDetail({
             ) : (
               <button
                 onClick={onWriteReview}
-                className="w-full py-4 text-white bg-blue-700 shadow-lg rounded-2xl hover:bg-blue-800"
+                className="w-full py-4 text-white bg-blue-700 shadow-lg rounded-2xl hover:bg-blue-800 cursor-pointer"
               >
                 방문 인증하고 리뷰 쓰기
               </button>

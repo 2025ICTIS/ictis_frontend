@@ -124,7 +124,7 @@ export const ConsumerTypeTest: React.FC = () => {
             <div className="flex items-center justify-center w-24 h-24 mx-auto mb-6 bg-pink-100 rounded-full">
               <Award className="w-12 h-12 text-pink-500" />
             </div>
-            <h2 className="mb-2 text-2xl font-bold text-center text-gray-900">
+            <h2 className="mb-2 text-xl font-bold text-center text-gray-900">
               {user?.nickname}님의 맞춤 추천 준비 중...
             </h2>
             <p className="mb-8 text-center text-gray-600">
@@ -180,7 +180,7 @@ export const ConsumerTypeTest: React.FC = () => {
 
       {/* 본문 */}
       <main className="flex-1 min-h-0 p-4 overflow-hidden">
-        <section className="flex flex-col flex-1 min-h-0 p-4 bg-white shadow-sm rounded-2xl overflow-hidden">
+        <section className="flex flex-col flex-1 min-h-0 p-4 bg-white rounded-2xl overflow-hidden">
           {/* 질문 제목 */}
           <h2 className="mb-4 text-xl font-bold leading-relaxed text-gray-900">
             {currentQuestion.title}

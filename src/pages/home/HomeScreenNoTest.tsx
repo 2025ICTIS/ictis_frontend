@@ -12,9 +12,6 @@ export const HomeScreenNoTest = () => {
           <h1 className="text-xl font-bold tracking-tight text-gray-900">
             맞춤 추천 받기
           </h1>
-          <span className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-semibold text-blue-600">
-            1분 소요
-          </span>
         </div>
       </header>
 

@@ -85,14 +85,16 @@ export const RankingScreen: React.FC = () => {
   // AppShell에 맞춘 레이아웃: 전체 높이 채우고 내부 스크롤만
   return (
     <div className="flex h-full w-full flex-col bg-white">
+        <header className="px-5 py-4 shadow-sm bg-white">
+            <div className="flex items-end justify-between">
+                <h1 className="text-xl font-bold tracking-tight text-gray-900">{monthLabel}</h1>
+                {!loading && !error && (
+                    <span className="text-xs text-gray-500">총 {list.length}명</span>
+                )}
+            </div>
+        </header>
       {/* 상단 */}
-      <div className="px-5 pt-5 pb-3">
-        <div className="flex items-end justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">{monthLabel}</h1>
-          {!loading && !error && (
-            <span className="text-xs text-gray-500">총 {list.length}명</span>
-          )}
-        </div>
+      <div className="px-5 pb-3">
 
         {/* 배너 */}
         <div className="px-4 py-3 mt-3 text-white bg-blue-600 shadow rounded-xl">
