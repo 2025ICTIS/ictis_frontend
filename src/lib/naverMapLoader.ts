@@ -1,6 +1,3 @@
-// 모듈 로드 확인용
-console.log("[naverMapLoaderV3] module loaded");
-
 let p: Promise<void> | null = null;
 
 function waitUntilReady(
