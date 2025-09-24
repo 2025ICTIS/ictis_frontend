@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useAppStore } from "@/store/useAppStore";
-import { MapPin, ChevronDown, Search, CheckCircle2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { loadNaverMapsV3 } from "@/lib/naverMapLoader";
-import { StoreDetail } from "@/pages/explore/StoreDetail";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {useAppStore} from "@/store/useAppStore";
+import {CheckCircle2, ChevronDown, MapPin, Search} from "lucide-react";
+import {useNavigate} from "react-router-dom";
+import {loadNaverMapsV3} from "@/lib/naverMapLoader";
+import {StoreDetail} from "@/pages/explore/StoreDetail";
 
 /* helpers */
 function getNaver() {
@@ -69,14 +69,14 @@ export const ExploreMapScreen = () => {
                 >
                     <section className="max-w-[360px] w-full text-center">
                         <div className="mx-auto mb-5 h-20 w-20 rounded-full bg-indigo-50 grid place-items-center">
-                            <Search className="h-10 w-10 text-indigo-500" />
+                            <Search className="h-10 w-10 text-indigo-500"/>
                         </div>
                         <h2 className="text-lg font-bold text-gray-900">
                             탐색은 테스트 완료 후 이용할 수 있어요
                         </h2>
                         <p className="mt-2 text-sm text-gray-600">
                             간단한 테스트로 취향을 파악하고
-                            <br />
+                            <br/>
                             더 정확한 장소를 추천해 드릴게요.
                         </p>
 
@@ -88,7 +88,7 @@ export const ExploreMapScreen = () => {
                                 테스트 하러 가기
                             </button>
                             <button
-                                onClick={() => navigate("/", { replace: true })}
+                                onClick={() => navigate("/", {replace: true})}
                                 className="cursor-pointer w-full rounded-2xl bg-gray-100 px-4 py-3 text-gray-800 font-medium hover:bg-gray-200 active:scale-[0.99]"
                             >
                                 홈으로 돌아가기
@@ -195,6 +195,32 @@ export const ExploreMapScreen = () => {
         renderMarkers(stores);
     }, [stores]);
 
+    /* 상태(예정/방문) 변경 시 마커 색상만 즉시 갱신 */
+    useEffect(() => {
+        const n = getNaver();
+        if (!n || !mapRef.current) return;
+        markerIndexRef.current.forEach((marker, id) => {
+            const planned = plannedVisitIds.includes(id);
+            const visited = visitedStoreIds.includes(id);
+            const color = visited ? "#16a34a" : planned ? "#2563eb" : "#ef4444";
+            const icon = {
+                content: `
+            <div style="
+              display:inline-flex;align-items:center;justify-content:center;
+              width:14px;height:14px;border-radius:50%;
+              background:${color};border:2px solid white;box-shadow:0 0 0 1px rgba(0,0,0,0.1);
+            "></div>
+            `,
+                size: new n.maps.Size(14, 14),
+                anchor: new n.maps.Point(7, 7),
+            };
+            try {
+                marker.setIcon(icon);
+            } catch {
+            }
+        });
+    }, [plannedVisitIds, visitedStoreIds]);
+
     /* markers */
     const renderMarkers = (list: typeof stores) => {
         const n = getNaver();
@@ -299,18 +325,19 @@ export const ExploreMapScreen = () => {
             const canGeocode = !!(svc && typeof svc.geocode === "function");
             if (!canGeocode || !s.address) return;
 
-            svc.geocode({ query: s.address }, (status: any, resp: any) => {
+            svc.geocode({query: s.address}, (status: any, resp: any) => {
                 if (status !== n.maps.Service.Status.OK) return;
                 try {
                     const addr = resp?.v2?.addresses?.[0];
                     if (!addr) return;
                     const y = +addr.y;
                     const x = +addr.x;
-                    geocodeCacheRef.current.set(id, { lat: y, lng: x });
+                    geocodeCacheRef.current.set(id, {lat: y, lng: x});
                     const pos = new n.maps.LatLng(y, x);
                     ensureMarker(pos);
                     applyView(pos);
-                } catch {}
+                } catch {
+                }
             });
         });
 
@@ -349,21 +376,21 @@ export const ExploreMapScreen = () => {
             <header className="sticky top-0 z-10 px-4 pt-4 pb-3 bg-white">
                 <div className="flex items-center justify-between">
                     <button className="cursor-pointer flex items-center gap-1 text-sm text-gray-700">
-                        <MapPin className="w-4 h-4" />
+                        <MapPin className="w-4 h-4"/>
                         <span>{user?.district ?? "지역 선택"}</span>
-                        <ChevronDown className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4"/>
                     </button>
                     <button className="cursor-pointer p-2 rounded-full hover:bg-gray-100">
-                        <Search className="w-5 h-5 text-gray-700" />
+                        <Search className="w-5 h-5 text-gray-700"/>
                     </button>
                 </div>
             </header>
 
             <main className="flex flex-col flex-1 min-h-0 px-4 pb-4 overflow-hidden">
-            {/* 지도 */}
+                {/* 지도 */}
                 <div
                     ref={mapEl}
-                    style={{ width: "100%", height: 300 }}
+                    style={{width: "100%", height: 300}}
                     className="rounded-2xl overflow-hidden border border-gray-100 shrink-0"
                 />
 
@@ -371,17 +398,17 @@ export const ExploreMapScreen = () => {
                 <section className="mt-4 flex flex-col flex-1 min-h-0">
                     <div className="space-y-3">
                         <h3 className="text-lg font-semibold text-gray-900">
-                        {user?.nickname ?? "회원"}님의 {currentMonth}월 방문 일정
+                            {user?.nickname ?? "회원"}님의 {currentMonth}월 방문 일정
                         </h3>
                         <p className="text-sm text-gray-500">
-                          미션(방문 목표)과 예정 일정을 통합해서 보여드려요.
+                            미션(방문 목표)과 예정 일정을 통합해서 보여드려요.
                         </p>
                         {/* 진행도 */}
                         <div>
                             <div className="w-full h-2 bg-gray-200 rounded-full">
                                 <div
                                     className="h-2 bg-pink-500 rounded-full"
-                                    style={{ width: `${progress}%` }}
+                                    style={{width: `${progress}%`}}
                                 />
                             </div>
                             <div className="mt-1 text-xs text-right text-gray-500">
@@ -400,52 +427,52 @@ export const ExploreMapScreen = () => {
                             </p>
                         </div>
                     ) : (
-                    <div className="mt-3 flex-1 min-h-0 space-y-3 overflow-y-auto p-1"
-                         style={{ WebkitOverflowScrolling: "touch" }}>
-                        {scheduleCards.map((s) => {
-                            const done = visitedStoreIds.includes(s.id);
-                            return (
-                                <div
-                                    key={s.id}
-                                    className={`flex items-center gap-3 p-3 bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm cursor-pointer transition-all hover:ring-gray-300${
-                                        done ? "opacity-90" : ""
-                                    }`}
-                                    onClick={() => setActiveStoreId(s.id)}
-                                >
-                                    <div className="w-20 h-16 overflow-hidden bg-gray-200 rounded-xl">
-                                        <img
-                                            src={s.image || "/images/sample/placeholder.jpg"}
-                                            alt={s.name}
-                                            className="object-cover w-full h-full"
-                                            draggable={false}
-                                        />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-gray-500 truncate">
-                                            {s.district} · {s.category}
-                                        </p>
-                                        <p className="truncate text-[15px] font-semibold text-gray-900">
-                                            {s.name}
-                                        </p>
-                                        <p className="mt-1 text-xs text-gray-500">
-                                            운영시간 | {s.hours?.split("(")[0] ?? "정보없음"}
-                                        </p>
-                                    </div>
-                                    {done ? (
-                                        <div className="flex items-center gap-1 text-xs font-medium text-green-600">
-                                            <CheckCircle2 className="w-5 h-5" />
-                                            완료
+                        <div className="mt-3 flex-1 min-h-0 space-y-3 overflow-y-auto p-1"
+                             style={{WebkitOverflowScrolling: "touch"}}>
+                            {scheduleCards.map((s) => {
+                                const done = visitedStoreIds.includes(s.id);
+                                return (
+                                    <div
+                                        key={s.id}
+                                        className={`flex items-center gap-3 p-3 bg-white rounded-2xl ring-1 ring-gray-200 shadow-sm cursor-pointer transition-all hover:ring-gray-300${
+                                            done ? "opacity-90" : ""
+                                        }`}
+                                        onClick={() => setActiveStoreId(s.id)}
+                                    >
+                                        <div className="w-20 h-16 overflow-hidden bg-gray-200 rounded-xl">
+                                            <img
+                                                src={s.image || "/images/sample/placeholder.jpg"}
+                                                alt={s.name}
+                                                className="object-cover w-full h-full"
+                                                draggable={false}
+                                            />
                                         </div>
-                                    ) : (
-                                        <span className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full">
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs text-gray-500 truncate">
+                                                {s.district} · {s.category}
+                                            </p>
+                                            <p className="truncate text-[15px] font-semibold text-gray-900">
+                                                {s.name}
+                                            </p>
+                                            <p className="mt-1 text-xs text-gray-500">
+                                                운영시간 | {s.hours?.split("(")[0] ?? "정보없음"}
+                                            </p>
+                                        </div>
+                                        {done ? (
+                                            <div className="flex items-center gap-1 text-xs font-medium text-green-600">
+                                                <CheckCircle2 className="w-5 h-5"/>
+                                                완료
+                                            </div>
+                                        ) : (
+                                            <span className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full">
                           예정
                         </span>
-                                    )}
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
 
                 </section>
             </main>

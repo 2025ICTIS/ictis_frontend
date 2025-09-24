@@ -13,6 +13,7 @@ import MyPageScreen from "@/pages/mypage/MyPageScreen.tsx";
 import {AppShell} from "@/components/AppShell.tsx";
 import LoginInfoScreen from "@/pages/mypage/LoginInfoScreen.tsx";
 import MyReviewsScreen from "@/pages/mypage/MyReviewsScreen.tsx";
+import ReviewWritePage from "@/pages/explore/ReviewWriteScreen.tsx";
 
 // screen <-> path 매핑
 const screenToPath = {
@@ -91,6 +92,7 @@ export default function App() {
                 <Route path="/mypage" element={<MyPageScreen/>}/>
                 <Route path="/mypage/login" element={<LoginInfoScreen/>}/>
                 <Route path="/mypage/reviews" element={<MyReviewsScreen/>}/>
+                <Route path="/review/new/:storeId" element={<ReviewWritePage/>}/>
                 {/* 안전망: 정의되지 않은 경로는 홈으로 */}
                 <Route path="*" element={<HomeScreen/>}/>
             </Route>
